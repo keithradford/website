@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>My Simple Website</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script
+      type="module"
+      src="https://cdn.jsdelivr.net/npm/zero-md@3?register"
+    ></script>
+  </head>
+  <body>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const links = document.querySelectorAll("#post-links a");
+        const mdViewer = document.getElementById("md-viewer");
+        const defaultPost = "posts/hello.md"; // Set the default post if no file is found
+
+        // Function to check if a file exists by sending a fetch request
+        const checkFileExists = async (url) => {
+          try {
+            const response = await fetch(url, { method: "HEAD" });
+            if (response.ok) {
+              return true; // File exists
+            } else {
+              throw new Error("404 Not Found");
+            }
+          } catch (error) {
+            return false; // File doesn't exist
+          }
+        };
+
+        // Function to load the Markdown file into the zero-md component
+        const loadMarkdown = async (filePath) => {
+          const fileExists = await checkFileExists(filePath);
+
+          if (fileExists) {
+            mdViewer.setAttribute("src", filePath); // Load the file if exists
+            history.pushState(null, "", `#${filePath}`); // Update the browser URL
+          } else {
+            alert(`Error: The file "${filePath}" does not exist.`);
+            mdViewer.setAttribute("src", defaultPost); // Fallback to default post
+            history.pushState(null, "", `#${defaultPost}`); // Update the URL to the default post
+          }
+        };
+
+        // Add event listener to each link
+        links.forEach((link) => {
+          link.addEventListener("click", async (event) => {
+            event.preventDefault(); // Prevent the default action of the link
+
+            const postPath = link.getAttribute("data-post"); // Get the path to the post
+            await loadMarkdown(postPath); // Try to load the post
+          });
+        });
+
+        // Optionally, check the initial hash in the URL on page load
+        const hash = window.location.hash.slice(1); // Remove the '#' from the hash
+        if (hash) {
+          loadMarkdown(hash); // Load the post from the URL hash if available
+        } else {
+          loadMarkdown(defaultPost); // Load default post if no hash in URL
+        }
+      });
+    </script>
+    <div class="container">
+      <header class="header">
+        <div class="header-top">
+          <img src="images/green-light.gif" />
+          <img src="images/blue-light.gif" />
+          <div class="header-content">
+            <h1 id="welcome-text">Welcome to My Website</h1>
+            <div class="links">
+              <a href="https://github.com/keithradford" target="_blank">
+                <img src="images/matrix.gif" />
+              </a>
+              <a href="mailto:khr8771@gmail.com"
+                ><img src="images/email.gif"
+              /></a>
+              <img src="images/triforce.gif" />
+            </div>
+          </div>
+          <img src="images/yellow-light.gif" />
+          <img src="images/purple-light.gif" />
+        </div>
+        <div class="rainbow-line" />
+      </header>
+      <nav class="menu">
+        <ul class="gif-bullets" id="post-links">
+          <li>
+            <a href="#" data-post="posts/comparing-popular-data-models.md"
+              >Comparing Popular Data Models</a
+            >
+          </li>
+          <li><a href="#" data-post="posts/hello.md">Hello</a></li>
+        </ul>
+      </nav>
+      <div class="main">
+        <zero-md src="" id="md-viewer">
+          <template>
+            <!-- Define your own styles inside a `<style>` tag -->
+            <style>
+              h1 {
+                color: red;
+              }
+            </style>
+            <!-- Or your own stylesheets with `<link>` tags -->
+            <link rel="stylesheet" href="markdown-styles.css" />
+            <link rel="stylesheet" href="highlight-styles.css" />
+          </template>
+        </zero-md>
+      </div>
+      <div class="right"></div>
+      <footer class="footer">
+        <div class="rainbow-line" />
+      </footer>
+    </div>
+  </body>
+</html>
